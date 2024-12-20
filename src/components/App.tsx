@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNowPlaying } from "react-nowplaying";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff } from "lucide-react";
 import {
@@ -17,10 +18,20 @@ import {
 } from "@/context/MicrophoneContextProvider";
 import TranscriptionBubble from "./TranscriptBubble";
 
+enum UserType {
+  Human = "Human",
+  Bot = "Bot",
+}
+
 const App: React.FC = () => {
   const [caption, setCaption] = useState<string | undefined>(
     "Click to begin and start speaking"
   );
+
+  const [user, setUser] = useState<UserType>(UserType.Human);
+
+  const [context, setContext] = useState<AudioContext>();
+  const { player } = useNowPlaying();
 
   const fullTranscriptRef = useRef<string>("");
 
@@ -51,7 +62,9 @@ const App: React.FC = () => {
 
     fullTranscriptRef.current = "";
 
-    startMicrophone();
+    setUser(UserType.Bot);
+
+    // startMicrophone();
   };
 
   const toggleCall = () => {
@@ -107,7 +120,7 @@ const App: React.FC = () => {
         fullTranscriptRef.current += " " + thisCaption;
       }
 
-      if (isFinal && speechFinal) {
+      if (isFinal && speechFinal && fullTranscriptRef.current.trim() !== "") {
         console.log("Full Transcript:", fullTranscriptRef.current.trim());
 
         stopMicrophone();
@@ -170,27 +183,31 @@ const App: React.FC = () => {
     <div className="flex flex-col items-center justify-center rounded">
       {caption && <TranscriptionBubble text={caption} />}
       <motion.div className="mt-4" animate={{}}>
-        <Button
-          onClick={toggleCall}
-          className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
-        >
-          <AnimatePresence>
-            <motion.div
-              key="mic-icon"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-            >
-              {microphoneState === MicrophoneState.Open ||
-              microphoneState === MicrophoneState.Opening ? (
-                <Mic />
-              ) : (
-                <MicOff />
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </Button>
+        {user === UserType.Human ? (
+          <Button
+            onClick={toggleCall}
+            className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
+          >
+            <AnimatePresence>
+              <motion.div
+                key="mic-icon"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3 }}
+              >
+                {microphoneState === MicrophoneState.Open ||
+                microphoneState === MicrophoneState.Opening ? (
+                  <Mic />
+                ) : (
+                  <MicOff />
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </Button>
+        ) : (
+          <p>BOT is speaking</p>
+        )}
       </motion.div>
     </div>
   );
