@@ -22,6 +22,8 @@ const App: React.FC = () => {
     "Click to begin and start speaking"
   );
 
+  const fullTranscriptRef = useRef<string>("");
+
   const { connection, connectToDeepgram, connectionState } = useDeepgram();
   const {
     setupMicrophone,
@@ -51,6 +53,7 @@ const App: React.FC = () => {
         smart_format: true,
         filler_words: true,
         utterance_end_ms: 3000,
+        endpointing: 300,
       });
     }
   }, [microphoneState]);
@@ -69,12 +72,29 @@ const App: React.FC = () => {
 
       let thisCaption = data.channel.alternatives[0].transcript;
 
+      const startTime = data.start;
+      const duration = data.duration;
+
+      console.log(
+        `${startTime} - ${
+          startTime + duration
+        } is_final: ${isFinal}, speech_final: ${speechFinal}: caption: ${thisCaption}`
+      );
+
       if (thisCaption !== "") {
-        console.log('thisCaption !== ""', thisCaption);
         setCaption(thisCaption);
       }
 
+      if (isFinal) {
+        fullTranscriptRef.current += " " + thisCaption;
+      }
+
       if (isFinal && speechFinal) {
+        console.log("Full Transcript:", fullTranscriptRef.current.trim());
+
+        // Reset
+        fullTranscriptRef.current = "";
+
         clearTimeout(captionTimeout.current);
         captionTimeout.current = setTimeout(() => {
           setCaption(undefined);
