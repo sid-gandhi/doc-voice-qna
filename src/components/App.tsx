@@ -31,7 +31,7 @@ const App: React.FC = () => {
   const [user, setUser] = useState<UserType>(UserType.Human);
 
   const [context, setContext] = useState<AudioContext>();
-  const { player } = useNowPlaying();
+  const { player, stop: stopAudio, play: playAudio } = useNowPlaying();
 
   const fullTranscriptRef = useRef<string>("");
 
@@ -47,6 +47,22 @@ const App: React.FC = () => {
   const captionTimeout = useRef<any>(null);
   const keepAliveInterval = useRef<any>(null);
 
+  const getTTS = async (text: string) => {
+    stopAudio();
+
+    const response = await fetch("/api/speak", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text }),
+      cache: "no-store",
+    });
+    stopAudio();
+
+    playAudio(await response.blob(), "audio/mp3");
+  };
+
   const getLLMResponse = async (): Promise<void> => {
     const response = await fetch("/api/llm_response", {
       method: "POST",
@@ -60,11 +76,12 @@ const App: React.FC = () => {
 
     console.log("result.llm_response", result.llm_response);
 
-    fullTranscriptRef.current = "";
-
     setUser(UserType.Bot);
+    await getTTS(result.llm_response);
 
-    // startMicrophone();
+    setUser(UserType.Human);
+    fullTranscriptRef.current = "";
+    startMicrophone();
   };
 
   const toggleCall = () => {
@@ -206,7 +223,7 @@ const App: React.FC = () => {
             </AnimatePresence>
           </Button>
         ) : (
-          <p>BOT is speaking</p>
+          <TranscriptionBubble text={"Thinking..."}></TranscriptionBubble>
         )}
       </motion.div>
     </div>

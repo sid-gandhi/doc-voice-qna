@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { NowPlayingContextProvider } from "react-nowplaying";
 import { DeepgramContextProvider } from "@/context/DeepgramContextProvider";
 import { MicrophoneContextProvider } from "@/context/MicrophoneContextProvider";
 
@@ -31,7 +32,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MicrophoneContextProvider>
-          <DeepgramContextProvider>{children}</DeepgramContextProvider>
+          <NowPlayingContextProvider>
+            <DeepgramContextProvider>{children}</DeepgramContextProvider>
+          </NowPlayingContextProvider>
         </MicrophoneContextProvider>
       </body>
     </html>
