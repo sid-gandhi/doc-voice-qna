@@ -36,6 +36,24 @@ const App: React.FC = () => {
   const captionTimeout = useRef<any>(null);
   const keepAliveInterval = useRef<any>(null);
 
+  const getLLMResponse = async (): Promise<void> => {
+    const response = await fetch("/api/llm_response", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ prompt: fullTranscriptRef.current.trim() }),
+      cache: "no-store",
+    });
+    const result = await response.json();
+
+    console.log("result.llm_response", result.llm_response);
+
+    fullTranscriptRef.current = "";
+
+    startMicrophone();
+  };
+
   const toggleCall = () => {
     if (microphoneState === MicrophoneState.Paused) {
       startMicrophone();
@@ -92,14 +110,14 @@ const App: React.FC = () => {
       if (isFinal && speechFinal) {
         console.log("Full Transcript:", fullTranscriptRef.current.trim());
 
-        // Reset
-        fullTranscriptRef.current = "";
+        stopMicrophone();
 
         clearTimeout(captionTimeout.current);
-        captionTimeout.current = setTimeout(() => {
-          setCaption(undefined);
-          clearTimeout(captionTimeout.current);
-        }, 3000);
+        setCaption(undefined);
+        // captionTimeout.current = setTimeout(() => {
+        //   setCaption(undefined);
+        //   clearTimeout(captionTimeout.current);
+        // }, 3000);
       }
     };
 
@@ -116,6 +134,15 @@ const App: React.FC = () => {
       clearTimeout(captionTimeout.current);
     };
   }, [connectionState]);
+
+  useEffect(() => {
+    if (
+      microphoneState === MicrophoneState.Paused &&
+      fullTranscriptRef.current.trim() !== ""
+    ) {
+      getLLMResponse();
+    }
+  }, [microphoneState]);
 
   useEffect(() => {
     if (!connection) return;
