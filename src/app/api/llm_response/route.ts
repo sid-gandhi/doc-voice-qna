@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
   const chatCompletion = await client.chat.completions.create({
     messages,
     model,
+    max_tokens: 300,
   });
 
   const llm_response = chatCompletion.choices[0].message.content;

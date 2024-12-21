@@ -1,5 +1,6 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 export type ConversationMessage = {
@@ -54,10 +55,14 @@ type ChatHistoryProps = { messages: ConversationMessage[] };
 // Example usage component
 const ChatHistory = ({ messages }: ChatHistoryProps) => {
   return (
-    <div className="max-w-2xl mx-auto p-4 space-y-4">
-      {messages.map((msg, idx) => (
-        <ChatBubble key={idx} {...msg} />
-      ))}
+    <div>
+      <ScrollArea>
+        <div className="max-w-2xl mx-auto p-4 space-y-4">
+          {messages.map((msg, idx) => (
+            <ChatBubble key={idx} {...msg} />
+          ))}
+        </div>
+      </ScrollArea>
     </div>
   );
 };

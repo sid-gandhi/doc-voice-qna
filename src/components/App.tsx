@@ -250,7 +250,7 @@ const App: React.FC = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center rounded">
+      <div className="flex flex-col items-center justify-center rounded ">
         <ChatHistory messages={conversation} />
         {caption && <TranscriptionBubble text={caption} />}
         <motion.div className="mt-4" animate={{}}>
