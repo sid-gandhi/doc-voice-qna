@@ -22,7 +22,7 @@ const ChatBubble = ({
     <div
       className={cn(
         "flex gap-2 max-w-[80%] mb-4",
-        isSent ? "ml-auto flex-row-reverse" : "mr-auto"
+        role === "user" ? "ml-auto flex-row-reverse" : "mr-auto"
       )}
     >
       <Avatar className="h-8 w-8">
