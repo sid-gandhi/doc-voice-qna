@@ -19,6 +19,7 @@ import {
 import TranscriptionBubble from "./TranscriptBubble";
 import ChatHistory, { ConversationMessage } from "./Conversation";
 import { FileUpload } from "./FileUpload";
+import { getCurrentTimeStamp } from "@/lib/utils";
 
 enum UserType {
   Human = "Human",
@@ -104,11 +105,7 @@ const App: React.FC = () => {
       {
         role: "assistant",
         content: result.llm_response,
-        timestamp: new Date().toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "numeric",
-          hour12: true,
-        }),
+        timestamp: getCurrentTimeStamp(),
         avatarUrl: "/bot.jpg",
         isSent: true,
       },
@@ -199,11 +196,7 @@ const App: React.FC = () => {
           {
             role: "user",
             content: fullTranscriptRef.current.trim(),
-            timestamp: new Date().toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "numeric",
-              hour12: true,
-            }),
+            timestamp: getCurrentTimeStamp(),
             avatarUrl: "/human.jpg",
             isSent: true,
           },
@@ -244,11 +237,7 @@ const App: React.FC = () => {
         {
           role: "user",
           content: fullTranscriptRef.current.trim(),
-          timestamp: new Date().toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "numeric",
-            hour12: true,
-          }),
+          timestamp: getCurrentTimeStamp(),
           avatarUrl: "/human.jpg",
           isSent: true,
         },
