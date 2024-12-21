@@ -17,6 +17,7 @@ import {
   useMicrophone,
 } from "@/context/MicrophoneContextProvider";
 import TranscriptionBubble from "./TranscriptBubble";
+import ChatHistory, { ConversationMessage } from "./Conversation";
 
 enum UserType {
   Human = "Human",
@@ -30,6 +31,7 @@ const App: React.FC = () => {
 
   const [user, setUser] = useState<UserType>(UserType.Human);
   const [llmText, setLLMText] = useState<string>("Thinking...");
+  const [conversation, setConversation] = useState<ConversationMessage[]>([]);
 
   const [context, setContext] = useState<AudioContext>();
   const { player, stop: stopAudio, play: playAudio } = useNowPlaying();
@@ -72,13 +74,16 @@ const App: React.FC = () => {
     });
   };
 
-  const getLLMResponse = async (): Promise<void> => {
+  const getLLMResponse = async (conv: ConversationMessage[]): Promise<void> => {
     const response = await fetch("/api/llm_response", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ prompt: fullTranscriptRef.current.trim() }),
+      body: JSON.stringify({
+        prompt: fullTranscriptRef.current.trim(),
+        full_conv: conv,
+      }),
       cache: "no-store",
     });
     const result = await response.json();
@@ -88,6 +93,18 @@ const App: React.FC = () => {
     // BOT will speak the response
     setUser(UserType.Bot);
     await getTTS(result.llm_response);
+
+    // Append bot response to conversation
+    setConversation((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: result.llm_response,
+        timestamp: new Date().toLocaleTimeString(),
+        avatarUrl: "/bot.jpg",
+        isSent: true,
+      },
+    ]);
 
     // Reset back to human
     setUser(UserType.Human);
@@ -152,6 +169,18 @@ const App: React.FC = () => {
       if (isFinal && speechFinal && fullTranscriptRef.current.trim() !== "") {
         console.log("Full Transcript:", fullTranscriptRef.current.trim());
 
+        // Append human message to conversation
+        setConversation((prev) => [
+          ...prev,
+          {
+            role: "user",
+            content: fullTranscriptRef.current.trim(),
+            timestamp: new Date().toLocaleTimeString(),
+            avatarUrl: "/human.jpg",
+            isSent: true,
+          },
+        ]);
+
         stopMicrophone();
 
         clearTimeout(captionTimeout.current);
@@ -182,7 +211,18 @@ const App: React.FC = () => {
       microphoneState === MicrophoneState.Paused &&
       fullTranscriptRef.current.trim() !== ""
     ) {
-      getLLMResponse();
+      const tempConv: ConversationMessage[] = [
+        ...conversation,
+        {
+          role: "user",
+          content: fullTranscriptRef.current.trim(),
+          timestamp: new Date().toLocaleTimeString(),
+          avatarUrl: "/human.jpg",
+          isSent: true,
+        },
+      ];
+
+      getLLMResponse(tempConv);
     }
   }, [microphoneState]);
 
@@ -209,36 +249,39 @@ const App: React.FC = () => {
   }, [microphoneState, connectionState]);
 
   return (
-    <div className="flex flex-col items-center justify-center rounded">
-      {caption && <TranscriptionBubble text={caption} />}
-      <motion.div className="mt-4" animate={{}}>
-        {user === UserType.Human ? (
-          <Button
-            onClick={toggleCall}
-            className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
-          >
-            <AnimatePresence>
-              <motion.div
-                key="mic-icon"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3 }}
-              >
-                {microphoneState === MicrophoneState.Open ||
-                microphoneState === MicrophoneState.Opening ? (
-                  <Mic />
-                ) : (
-                  <MicOff />
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </Button>
-        ) : (
-          <TranscriptionBubble text={llmText}></TranscriptionBubble>
-        )}
-      </motion.div>
-    </div>
+    <>
+      <div className="flex flex-col items-center justify-center rounded">
+        <ChatHistory messages={conversation} />
+        {caption && <TranscriptionBubble text={caption} />}
+        <motion.div className="mt-4" animate={{}}>
+          {user === UserType.Human ? (
+            <Button
+              onClick={toggleCall}
+              className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
+            >
+              <AnimatePresence>
+                <motion.div
+                  key="mic-icon"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {microphoneState === MicrophoneState.Open ||
+                  microphoneState === MicrophoneState.Opening ? (
+                    <Mic />
+                  ) : (
+                    <MicOff />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </Button>
+          ) : (
+            <TranscriptionBubble text={llmText}></TranscriptionBubble>
+          )}
+        </motion.div>
+      </div>
+    </>
   );
 };
 
