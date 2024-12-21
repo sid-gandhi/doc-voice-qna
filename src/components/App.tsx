@@ -130,7 +130,7 @@ const App: React.FC = () => {
         smart_format: true,
         filler_words: true,
         utterance_end_ms: 3000,
-        endpointing: 300,
+        endpointing: 500,
       });
     }
   }, [microphoneState]);
