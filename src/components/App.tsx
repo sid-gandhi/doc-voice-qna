@@ -38,6 +38,7 @@ const App: React.FC = () => {
   const { player, stop: stopAudio, play: playAudio } = useNowPlaying();
 
   const [uploadedFile, setUploadedFile] = React.useState<File | null>(null);
+  const [fileSubmitted, setFileSubmitted] = React.useState<boolean>(false);
 
   const fullTranscriptRef = useRef<string>("");
 
@@ -103,7 +104,11 @@ const App: React.FC = () => {
       {
         role: "assistant",
         content: result.llm_response,
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp: new Date().toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        }),
         avatarUrl: "/bot.jpg",
         isSent: true,
       },
@@ -134,6 +139,8 @@ const App: React.FC = () => {
       console.log("No file uploaded");
       return;
     }
+
+    setFileSubmitted(true);
 
     console.log("File uploaded successfully");
   };
@@ -192,7 +199,11 @@ const App: React.FC = () => {
           {
             role: "user",
             content: fullTranscriptRef.current.trim(),
-            timestamp: new Date().toLocaleTimeString(),
+            timestamp: new Date().toLocaleTimeString("en-US", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            }),
             avatarUrl: "/human.jpg",
             isSent: true,
           },
@@ -233,7 +244,11 @@ const App: React.FC = () => {
         {
           role: "user",
           content: fullTranscriptRef.current.trim(),
-          timestamp: new Date().toLocaleTimeString(),
+          timestamp: new Date().toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "numeric",
+            hour12: true,
+          }),
           avatarUrl: "/human.jpg",
           isSent: true,
         },
@@ -268,47 +283,54 @@ const App: React.FC = () => {
   return (
     <>
       <div className="flex flex-col items-center justify-center rounded ">
-        <div className="container mx-auto p-4">
-            <h1 className="text-xl font-bold mb-4 text-center">Please Upload Your Document</h1>
-          <FileUpload onFileUpload={handleFileUpload} />
-          {uploadedFile && (
-            <div className="mt-4">
-              <p>File ready to upload: {uploadedFile.name}</p>
-              <Button onClick={handleSubmit} className="mt-2">
-                Submit File
-              </Button>
-            </div>
-          )}
-        </div>
-        <ChatHistory messages={conversation} />
-        {caption && <TranscriptionBubble text={caption} />}
-        <motion.div className="mt-4" animate={{}}>
-          {user === UserType.Human ? (
-            <Button
-              onClick={toggleCall}
-              className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
-            >
-              <AnimatePresence>
-                <motion.div
-                  key="mic-icon"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.3 }}
+        {!fileSubmitted ? (
+          <div className="container mx-auto p-4">
+            <h1 className="text-xl font-bold mb-4 text-center">
+              Please Upload Your Document
+            </h1>
+            <FileUpload onFileUpload={handleFileUpload} />
+            {uploadedFile && (
+              <div className="mt-4">
+                <p>File ready to upload: {uploadedFile.name}</p>
+                <Button onClick={handleSubmit} className="mt-2">
+                  Submit File
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            <ChatHistory messages={conversation} />
+            {caption && <TranscriptionBubble text={caption} />}
+            <motion.div className="mt-4">
+              {user === UserType.Human ? (
+                <Button
+                  onClick={toggleCall}
+                  className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
                 >
-                  {microphoneState === MicrophoneState.Open ||
-                  microphoneState === MicrophoneState.Opening ? (
-                    <Mic />
-                  ) : (
-                    <MicOff />
-                  )}
-                </motion.div>
-              </AnimatePresence>
-            </Button>
-          ) : (
-            <TranscriptionBubble text={llmText}></TranscriptionBubble>
-          )}
-        </motion.div>
+                  <AnimatePresence>
+                    <motion.div
+                      key="mic-icon"
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {microphoneState === MicrophoneState.Open ||
+                      microphoneState === MicrophoneState.Opening ? (
+                        <Mic />
+                      ) : (
+                        <MicOff />
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
+                </Button>
+              ) : (
+                <TranscriptionBubble text={llmText}></TranscriptionBubble>
+              )}
+            </motion.div>
+          </>
+        )}
       </div>
     </>
   );
