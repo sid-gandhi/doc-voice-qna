@@ -29,6 +29,7 @@ const App: React.FC = () => {
   );
 
   const [user, setUser] = useState<UserType>(UserType.Human);
+  const [llmText, setLLMText] = useState<string>("Thinking...");
 
   const [context, setContext] = useState<AudioContext>();
   const { player, stop: stopAudio, play: playAudio } = useNowPlaying();
@@ -60,7 +61,15 @@ const App: React.FC = () => {
     });
     stopAudio();
 
-    playAudio(await response.blob(), "audio/mp3");
+    const audioBlob = await response.blob();
+
+    await playAudio(audioBlob, "audio/mp3");
+
+    setLLMText(text);
+
+    await new Promise<void>((resolve) => {
+      player!.onended = () => resolve();
+    });
   };
 
   const getLLMResponse = async (): Promise<void> => {
@@ -76,10 +85,13 @@ const App: React.FC = () => {
 
     console.log("result.llm_response", result.llm_response);
 
+    // BOT will speak the response
     setUser(UserType.Bot);
     await getTTS(result.llm_response);
 
+    // Reset back to human
     setUser(UserType.Human);
+    setLLMText("Thinking...");
     fullTranscriptRef.current = "";
     startMicrophone();
   };
@@ -223,7 +235,7 @@ const App: React.FC = () => {
             </AnimatePresence>
           </Button>
         ) : (
-          <TranscriptionBubble text={"Thinking..."}></TranscriptionBubble>
+          <TranscriptionBubble text={llmText}></TranscriptionBubble>
         )}
       </motion.div>
     </div>
