@@ -18,6 +18,7 @@ import {
 } from "@/context/MicrophoneContextProvider";
 import TranscriptionBubble from "./TranscriptBubble";
 import ChatHistory, { ConversationMessage } from "./Conversation";
+import { FileUpload } from "./FileUpload";
 
 enum UserType {
   Human = "Human",
@@ -35,6 +36,8 @@ const App: React.FC = () => {
 
   const [context, setContext] = useState<AudioContext>();
   const { player, stop: stopAudio, play: playAudio } = useNowPlaying();
+
+  const [uploadedFile, setUploadedFile] = React.useState<File | null>(null);
 
   const fullTranscriptRef = useRef<string>("");
 
@@ -119,6 +122,20 @@ const App: React.FC = () => {
     } else if (microphoneState === MicrophoneState.Open) {
       stopMicrophone();
     } else setupMicrophone();
+  };
+
+  const handleFileUpload = (file: File) => {
+    setUploadedFile(file);
+    console.log("File received:", file.name);
+  };
+
+  const handleSubmit = async () => {
+    if (!uploadedFile) {
+      console.log("No file uploaded");
+      return;
+    }
+
+    console.log("File uploaded successfully");
   };
 
   // if microphone is ready connect to deepgram
@@ -251,6 +268,18 @@ const App: React.FC = () => {
   return (
     <>
       <div className="flex flex-col items-center justify-center rounded ">
+        <div className="container mx-auto p-4">
+            <h1 className="text-xl font-bold mb-4 text-center">Please Upload Your Document</h1>
+          <FileUpload onFileUpload={handleFileUpload} />
+          {uploadedFile && (
+            <div className="mt-4">
+              <p>File ready to upload: {uploadedFile.name}</p>
+              <Button onClick={handleSubmit} className="mt-2">
+                Submit File
+              </Button>
+            </div>
+          )}
+        </div>
         <ChatHistory messages={conversation} />
         {caption && <TranscriptionBubble text={caption} />}
         <motion.div className="mt-4" animate={{}}>
