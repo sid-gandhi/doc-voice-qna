@@ -41,6 +41,8 @@ const App: React.FC = () => {
   const [uploadedFile, setUploadedFile] = React.useState<File | null>(null);
   const [fileSubmitted, setFileSubmitted] = React.useState<boolean>(false);
 
+  const [namespace, setNamespace] = useState<string>("");
+
   const fullTranscriptRef = useRef<string>("");
 
   const { connection, connectToDeepgram, connectionState } = useDeepgram();
@@ -88,6 +90,7 @@ const App: React.FC = () => {
       body: JSON.stringify({
         prompt: fullTranscriptRef.current.trim(),
         full_conv: conv,
+        namespace,
       }),
       cache: "no-store",
     });
@@ -138,6 +141,7 @@ const App: React.FC = () => {
     }
 
     setFileSubmitted(true);
+    setNamespace(uploadedFile.name + "_" + new Date().toISOString());
 
     console.log("File uploaded successfully");
   };
@@ -149,6 +153,7 @@ const App: React.FC = () => {
 
     const formData = new FormData();
     formData.append("file", uploadedFile);
+    formData.append("namespace", namespace);
 
     await fetch("/api/process_doc", {
       method: "POST",

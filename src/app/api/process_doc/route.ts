@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
 
     const uploadedFile = formData.get("file") as File;
+    const namespace = formData.get("namespace") as string;
 
     console.log("File received:", uploadedFile.name);
 
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest) {
     const docs = await getChunkedDocsFromPDF(uploadedFile);
     console.log(`Loading ${docs.length} chunks into pinecone...`);
 
-    await embedAndStoreDocs(pineconeClient, docs);
+    await embedAndStoreDocs(pineconeClient, docs, namespace);
     console.log("Data embedded and stored in pine-cone index");
 
     return NextResponse.json({

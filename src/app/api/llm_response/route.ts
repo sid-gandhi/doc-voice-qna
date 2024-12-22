@@ -10,12 +10,13 @@ export const revalidate = 0;
 type reqBodyType = {
   prompt: string;
   full_conv: ConversationMessage[];
+  namespace: string;
 };
 
 export async function POST(req: NextRequest) {
   const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-  const { prompt, full_conv }: reqBodyType = await req.json();
+  const { prompt, full_conv, namespace }: reqBodyType = await req.json();
 
   const chatHistory = full_conv
     .map(
@@ -25,7 +26,11 @@ export async function POST(req: NextRequest) {
 
   // retrieve context from vector store
   const pineconeClient = await getPineconeClient();
-  const context = await getVectorStoreSearchResults(pineconeClient, prompt);
+  const context = await getVectorStoreSearchResults(
+    pineconeClient,
+    prompt,
+    namespace
+  );
 
   // build the prompt
   const llmPrompt = LLM_PROMPT.replace("{chat_history}", chatHistory)

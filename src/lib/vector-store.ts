@@ -1,12 +1,12 @@
-import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/pinecone";
 import { Pinecone } from "@pinecone-database/pinecone";
 import { CohereEmbeddings } from "@langchain/cohere";
+import { Document } from "@langchain/core/documents";
 
 export async function embedAndStoreDocs(
   client: Pinecone,
-  // @ts-ignore docs type error
-  docs: Document<Record<string, any>>[]
+  docs: Document<Record<string, any>>[],
+  namespace: string
 ) {
   /*create and store the embeddings in the vectorStore*/
   try {
@@ -17,6 +17,7 @@ export async function embedAndStoreDocs(
     await PineconeStore.fromDocuments(docs, embeddings, {
       pineconeIndex: index,
       textKey: "text",
+      namespace,
     });
   } catch (error) {
     console.log("error ", error);
@@ -27,7 +28,8 @@ export async function embedAndStoreDocs(
 // Returns vector-store handle to be used a retrievers on langchains
 export async function getVectorStoreSearchResults(
   client: Pinecone,
-  query: string
+  query: string,
+  namespace: string
 ) {
   try {
     const embeddings = new CohereEmbeddings({ model: "embed-english-v3.0" });
@@ -36,6 +38,7 @@ export async function getVectorStoreSearchResults(
     const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
       pineconeIndex: index,
       textKey: "text",
+      namespace,
     });
 
     const searchResults = await vectorStore.similaritySearch(query, 2);
