@@ -1,3 +1,5 @@
+export const maxDuration = 60;
+
 import { getChunkedDocsFromPDF } from "@/lib/pdf-loader";
 import { getPineconeClient } from "@/lib/pinecone-client";
 import { embedAndStoreDocs } from "@/lib/vector-store";
