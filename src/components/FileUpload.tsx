@@ -1,62 +1,64 @@
-'use client'
+"use client";
 
-import React, { useCallback, useState } from 'react'
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Upload, File, X } from 'lucide-react'
+import React, { useCallback, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Upload, File, X } from "lucide-react";
 
 interface FileUploadProps {
-  onFileUpload: (file: File) => void
+  onFileUpload: (file: File) => void;
 }
 
 export function FileUpload({ onFileUpload }: FileUploadProps) {
-  const [file, setFile] = useState<File | null>(null)
-  const [dragActive, setDragActive] = useState(false)
+  const [file, setFile] = useState<File | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true)
+      setDragActive(true);
     } else if (e.type === "dragleave") {
-      setDragActive(false)
+      setDragActive(false);
     }
-  }, [])
+  }, []);
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0])
+      handleFile(e.dataTransfer.files[0]);
     }
-  }, [])
+  }, []);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
+    e.preventDefault();
     if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0])
+      handleFile(e.target.files[0]);
     }
-  }, [])
+  }, []);
 
   const handleFile = (file: File) => {
-    const validTypes = ['.txt', '.pdf', '.docx']
-    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase()
+    const validTypes = [".txt", ".pdf", ".docx"];
+    const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
     if (validTypes.includes(fileExtension)) {
-      setFile(file)
-      onFileUpload(file)
+      setFile(file);
+      onFileUpload(file);
     } else {
-      alert('Please upload a .txt, .pdf, or .docx file')
+      alert("Please upload a .txt, .pdf, or .docx file");
     }
-  }
+  };
 
   const removeFile = useCallback(() => {
-    setFile(null)
-  }, [])
+    setFile(null);
+  }, []);
 
   return (
-    <div 
-      className={`p-8 border-2 border-dashed rounded-lg ${dragActive ? 'border-primary' : 'border-gray-300'} transition-colors`}
+    <div
+      className={`p-8 border-2 border-dashed rounded-lg ${
+        dragActive ? "border-primary" : "border-gray-300"
+      } transition-colors`}
       onDragEnter={handleDrag}
       onDragLeave={handleDrag}
       onDragOver={handleDrag}
@@ -71,14 +73,17 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
           type="file"
           className="hidden"
           onChange={handleChange}
-          accept=".txt,.pdf,.docx"
+          accept=".pdf"
+          size={1024 * 1024}
         />
         <label htmlFor="file-upload">
           <Button variant="outline" className="cursor-pointer">
-            Select a file
+            {"Select a file (less than 1MB)"}
           </Button>
         </label>
-        <p className="text-xs text-gray-500">Supported file types: .txt, .pdf, .docx</p>
+        <p className="text-xs text-gray-500">
+          Supported file types: .txt, .pdf, .docx
+        </p>
       </div>
       {file && (
         <div className="mt-4 p-4 bg-gray-100 rounded-md flex items-center justify-between">
@@ -92,6 +97,5 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
         </div>
       )}
     </div>
-  )
+  );
 }
-
