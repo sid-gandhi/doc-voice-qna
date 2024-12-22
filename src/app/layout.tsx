@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 import { NowPlayingContextProvider } from "react-nowplaying";
@@ -36,6 +37,7 @@ export default function RootLayout({
             <DeepgramContextProvider>{children}</DeepgramContextProvider>
           </NowPlayingContextProvider>
         </MicrophoneContextProvider>
+        <Toaster />
       </body>
     </html>
   );

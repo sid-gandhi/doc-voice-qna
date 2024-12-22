@@ -21,6 +21,8 @@ import ChatHistory, { ConversationMessage } from "./Conversation";
 import { FileUpload } from "./FileUpload";
 import { getCurrentTimeStamp } from "@/lib/utils";
 
+import { useToast } from "@/hooks/use-toast";
+
 enum UserType {
   Human = "Human",
   Bot = "Bot",
@@ -44,6 +46,8 @@ const App: React.FC = () => {
   const [namespace, setNamespace] = useState<string>("");
 
   const fullTranscriptRef = useRef<string>("");
+
+  const { toast } = useToast();
 
   const { connection, connectToDeepgram, connectionState } = useDeepgram();
   const {
@@ -82,6 +86,8 @@ const App: React.FC = () => {
   };
 
   const getLLMResponse = async (conv: ConversationMessage[]): Promise<void> => {
+    setLLMText("Thinking...");
+
     const response = await fetch("/api/llm_response", {
       method: "POST",
       headers: {
@@ -116,7 +122,6 @@ const App: React.FC = () => {
 
     // Reset back to human
     setUser(UserType.Human);
-    setLLMText("Thinking...");
     fullTranscriptRef.current = "";
     startMicrophone();
   };
@@ -137,10 +142,22 @@ const App: React.FC = () => {
   const handleSubmit = async () => {
     if (!uploadedFile) {
       console.log("No file uploaded");
+
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "Please select a file to upload.",
+      });
+
       return;
     }
 
     setFileSubmitted(true);
+
+    toast({
+      description: "File submitted successfully",
+    });
+
     setNamespace(uploadedFile.name + "_" + new Date().toISOString());
 
     console.log("File uploaded successfully");

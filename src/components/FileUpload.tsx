@@ -40,7 +40,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
   }, []);
 
   const handleFile = (file: File) => {
-    const validTypes = [".txt", ".pdf", ".docx"];
+    const validTypes = [".pdf"];
     const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
 
     if (file.size > 1024 * 1024) {
@@ -52,7 +52,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
       setFile(file);
       onFileUpload(file);
     } else {
-      alert("Please upload a .txt, .pdf, or .docx file");
+      alert("Please upload a .pdf file");
     }
   };
 
