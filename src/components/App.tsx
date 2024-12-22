@@ -176,7 +176,7 @@ const App: React.FC = () => {
         smart_format: true,
         filler_words: true,
         utterance_end_ms: 3000,
-        endpointing: 500,
+        endpointing: 300,
       });
     }
   }, [microphoneState]);
@@ -304,9 +304,9 @@ const App: React.FC = () => {
             </h1>
             <FileUpload onFileUpload={handleFileUpload} />
             {uploadedFile && (
-              <div className="mt-4">
+              <div className="mt-4 text-center">
                 <p>File ready to upload: {uploadedFile.name}</p>
-                <Button onClick={handleSubmit} className="mt-2">
+                <Button onClick={handleSubmit} className="mt-2 ">
                   Submit File
                 </Button>
               </div>

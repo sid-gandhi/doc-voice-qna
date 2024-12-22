@@ -42,6 +42,12 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
   const handleFile = (file: File) => {
     const validTypes = [".txt", ".pdf", ".docx"];
     const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
+
+    if (file.size > 1024 * 1024) {
+      alert("File size must be less than 1MB");
+      return;
+    }
+
     if (validTypes.includes(fileExtension)) {
       setFile(file);
       onFileUpload(file);
@@ -74,16 +80,16 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
           className="hidden"
           onChange={handleChange}
           accept=".pdf"
-          size={1024 * 1024}
         />
-        <label htmlFor="file-upload">
-          <Button variant="outline" className="cursor-pointer">
-            {"Select a file (less than 1MB)"}
-          </Button>
-        </label>
-        <p className="text-xs text-gray-500">
-          Supported file types: .txt, .pdf, .docx
-        </p>
+        <Button
+          variant="outline"
+          className="cursor-pointer"
+          onClick={() => document.getElementById("file-upload")?.click()}
+        >
+          Select a file
+        </Button>
+        <p className="text-xs text-gray-500">Supported file types: .pdf</p>
+        <p className="text-xs text-gray-500">File size must be less than 1MB</p>
       </div>
       {file && (
         <div className="mt-4 p-4 bg-gray-100 rounded-md flex items-center justify-between">
