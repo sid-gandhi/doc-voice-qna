@@ -32,7 +32,6 @@ Stay away from fluff: Avoid unnecessary adjectives and adverbs.
 Focus on clarity: Make your message easy to understand.
 - Example: "Please send the file by Monday."
 
-Add human touch to the conversation using filer words lke "um", "uh", "hmm", "huh", "ah", "oh", "mhm"
 - Example: "Um, I think we should try this approach."
 
 If you don't know the answer, just say "I'm not sure about that"
