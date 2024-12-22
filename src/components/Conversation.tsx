@@ -7,17 +7,9 @@ export type ConversationMessage = {
   content: string;
   role: "user" | "assistant";
   timestamp: string;
-  isSent?: boolean;
-  avatarUrl: string;
 };
 
-const ChatBubble = ({
-  content,
-  role,
-  timestamp,
-  isSent = false,
-  avatarUrl,
-}: ConversationMessage) => {
+const ChatBubble = ({ content, role, timestamp }: ConversationMessage) => {
   return (
     <div
       className={cn(
@@ -26,7 +18,6 @@ const ChatBubble = ({
       )}
     >
       <Avatar className="h-8 w-8">
-        <AvatarImage src={avatarUrl} />
         <AvatarFallback>
           {role[0].toUpperCase() === "U" ? "H" : "AI"}
         </AvatarFallback>

@@ -125,8 +125,6 @@ const App: React.FC = () => {
         role: "assistant",
         content: result.llm_response,
         timestamp: getCurrentTimeStamp(),
-        avatarUrl: "/bot.jpg",
-        isSent: true,
       },
     ]);
 
@@ -266,8 +264,6 @@ const App: React.FC = () => {
             role: "user",
             content: fullTranscriptRef.current.trim(),
             timestamp: getCurrentTimeStamp(),
-            avatarUrl: "/human.jpg",
-            isSent: true,
           },
         ]);
 
@@ -307,8 +303,6 @@ const App: React.FC = () => {
           role: "user",
           content: fullTranscriptRef.current.trim(),
           timestamp: getCurrentTimeStamp(),
-          avatarUrl: "/human.jpg",
-          isSent: true,
         },
       ];
 
@@ -365,6 +359,7 @@ const App: React.FC = () => {
           </div>
         ) : (
           <>
+            {uploadedFile?.name}
             <ChatHistory messages={conversation} />
             {caption && <TranscriptionBubble text={caption} />}
             <motion.div className="mt-4">
