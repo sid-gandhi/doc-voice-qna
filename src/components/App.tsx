@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNowPlaying } from "react-nowplaying";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Loader2 } from "lucide-react";
 import {
   LiveConnectionState,
   LiveTranscriptionEvent,
@@ -26,6 +26,12 @@ import { useToast } from "@/hooks/use-toast";
 enum UserType {
   Human = "Human",
   Bot = "Bot",
+}
+
+enum ProcessingState {
+  NOT_INITIATED = "not-initiated",
+  PROCESSING = "processing",
+  PROCESSED = "processed",
 }
 
 const App: React.FC = () => {
@@ -60,6 +66,10 @@ const App: React.FC = () => {
 
   const captionTimeout = useRef<any>(null);
   const keepAliveInterval = useRef<any>(null);
+
+  const [processingState, setProcessingState] = useState<ProcessingState>(
+    ProcessingState.NOT_INITIATED
+  );
 
   const getTTS = async (text: string) => {
     stopAudio();
@@ -168,15 +178,32 @@ const App: React.FC = () => {
       throw Error("No file uploaded");
     }
 
+    setProcessingState(ProcessingState.PROCESSING);
+
     const formData = new FormData();
     formData.append("file", uploadedFile);
     formData.append("namespace", namespace);
 
-    await fetch("/api/process_doc", {
-      method: "POST",
-      body: formData,
-      cache: "no-store",
-    });
+    try {
+      await fetch("/api/process_doc", {
+        method: "POST",
+        body: formData,
+        cache: "no-store",
+      });
+
+      toast({
+        description: "File processed successfully",
+      });
+
+      setProcessingState(ProcessingState.PROCESSED);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error processing document",
+        description: "Please try again.",
+      });
+      setProcessingState(ProcessingState.NOT_INITIATED);
+    }
   };
 
   useEffect(() => {
@@ -328,6 +355,13 @@ const App: React.FC = () => {
                 </Button>
               </div>
             )}
+          </div>
+        ) : processingState === ProcessingState.PROCESSING ? (
+          <div className="flex flex-col items-center justify-center space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin" />
+            <p className="text-lg">
+              Document is processing, please wait a few seconds...
+            </p>
           </div>
         ) : (
           <>
