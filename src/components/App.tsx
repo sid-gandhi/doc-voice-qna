@@ -142,6 +142,26 @@ const App: React.FC = () => {
     console.log("File uploaded successfully");
   };
 
+  const sendFileForProcessing = async () => {
+    if (!uploadedFile) {
+      throw Error("No file uploaded");
+    }
+
+    const formData = new FormData();
+    formData.append("file", uploadedFile);
+
+    await fetch("/api/process_doc", {
+      method: "POST",
+      body: formData,
+      cache: "no-store",
+    });
+  };
+
+  useEffect(() => {
+    // send the file for processing
+    if (fileSubmitted) sendFileForProcessing();
+  }, [fileSubmitted]);
+
   // if microphone is ready connect to deepgram
   useEffect(() => {
     if (microphoneState === MicrophoneState.Ready) {

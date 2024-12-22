@@ -1,6 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import Groq from "groq-sdk";
 import { ConversationMessage } from "@/components/Conversation";
+import { getPineconeClient } from "@/lib/pinecone-client";
+import { getVectorStoreSearchResults } from "@/lib/vector-store";
+import { LLM_PROMPT } from "@/lib/prompt-templates";
 
 export const revalidate = 0;
 
@@ -14,15 +17,25 @@ export async function POST(req: NextRequest) {
 
   const { prompt, full_conv }: reqBodyType = await req.json();
 
-  const messages = full_conv.map((msg) => ({
-    role: msg.role,
-    content: msg.content,
-  }));
+  const chatHistory = full_conv
+    .map(
+      (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
+    )
+    .join(" ");
+
+  // retrieve context from vector store
+  const pineconeClient = await getPineconeClient();
+  const context = await getVectorStoreSearchResults(pineconeClient, prompt);
+
+  // build the prompt
+  const llmPrompt = LLM_PROMPT.replace("{chat_history}", chatHistory)
+    .replace("{context}", context)
+    .replace("{query}", prompt);
 
   const model = "llama3-70b-8192";
 
   const chatCompletion = await client.chat.completions.create({
-    messages,
+    messages: [{ role: "user", content: llmPrompt }],
     model,
     max_tokens: 300,
   });
