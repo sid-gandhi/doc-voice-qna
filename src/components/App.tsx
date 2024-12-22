@@ -40,7 +40,9 @@ const App: React.FC = () => {
   );
 
   const [user, setUser] = useState<UserType>(UserType.Human);
-  const [llmText, setLLMText] = useState<string>("Thinking...");
+  const [llmText, setLLMText] = useState<string>("");
+  const [isGeneratingResponse, setIsGeneratingResponse] =
+    useState<boolean>(false);
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
 
   const { player, stop: stopAudio, play: playAudio } = useNowPlaying();
@@ -88,6 +90,7 @@ const App: React.FC = () => {
     await playAudio(audioBlob, "audio/mp3");
 
     setLLMText(text);
+    setIsGeneratingResponse(false);
 
     await new Promise<void>((resolve) => {
       player!.onended = () => resolve();
@@ -257,6 +260,7 @@ const App: React.FC = () => {
     const getLLMResponse = async (
       conv: ConversationMessage[]
     ): Promise<void> => {
+      setIsGeneratingResponse(true);
       setLLMText("Thinking...");
 
       const response = await fetch("/api/llm_response", {
@@ -387,8 +391,13 @@ const App: React.FC = () => {
                     </motion.div>
                   </AnimatePresence>
                 </Button>
+              ) : isGeneratingResponse ? (
+                <div className="flex flex-col items-center justify-center space-y-4">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                  <p className="text-lg">Thinking...</p>
+                </div>
               ) : (
-                <TranscriptionBubble text={llmText}></TranscriptionBubble>
+                <TranscriptionBubble text={llmText} />
               )}
             </motion.div>
           </>
