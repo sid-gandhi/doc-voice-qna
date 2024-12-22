@@ -43,7 +43,6 @@ const App: React.FC = () => {
   const [llmText, setLLMText] = useState<string>("Thinking...");
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
 
-  const [context, setContext] = useState<AudioContext>();
   const { player, stop: stopAudio, play: playAudio } = useNowPlaying();
 
   const [uploadedFile, setUploadedFile] = React.useState<File | null>(null);
@@ -64,8 +63,8 @@ const App: React.FC = () => {
     microphoneState,
   } = useMicrophone();
 
-  const captionTimeout = useRef<any>(null);
-  const keepAliveInterval = useRef<any>(null);
+  const captionTimeout = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const keepAliveInterval = useRef<any>(null); // eslint-disable-line @typescript-eslint/no-explicit-any
 
   const [processingState, setProcessingState] = useState<ProcessingState>(
     ProcessingState.NOT_INITIATED
@@ -93,45 +92,6 @@ const App: React.FC = () => {
     await new Promise<void>((resolve) => {
       player!.onended = () => resolve();
     });
-  };
-
-  const getLLMResponse = async (conv: ConversationMessage[]): Promise<void> => {
-    setLLMText("Thinking...");
-
-    const response = await fetch("/api/llm_response", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: fullTranscriptRef.current.trim(),
-        full_conv: conv,
-        namespace,
-      }),
-      cache: "no-store",
-    });
-    const result = await response.json();
-
-    console.log("result.llm_response", result.llm_response);
-
-    // BOT will speak the response
-    setUser(UserType.Bot);
-    await getTTS(result.llm_response);
-
-    // Append bot response to conversation
-    setConversation((prev) => [
-      ...prev,
-      {
-        role: "assistant",
-        content: result.llm_response,
-        timestamp: getCurrentTimeStamp(),
-      },
-    ]);
-
-    // Reset back to human
-    setUser(UserType.Human);
-    fullTranscriptRef.current = "";
-    startMicrophone();
   };
 
   const toggleCall = () => {
@@ -171,41 +131,42 @@ const App: React.FC = () => {
     console.log("File uploaded successfully");
   };
 
-  const sendFileForProcessing = async () => {
-    if (!uploadedFile) {
-      throw Error("No file uploaded");
-    }
-
-    setProcessingState(ProcessingState.PROCESSING);
-
-    const formData = new FormData();
-    formData.append("file", uploadedFile);
-    formData.append("namespace", namespace);
-
-    try {
-      await fetch("/api/process_doc", {
-        method: "POST",
-        body: formData,
-        cache: "no-store",
-      });
-
-      toast({
-        description: "File processed successfully",
-      });
-
-      setProcessingState(ProcessingState.PROCESSED);
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error processing document",
-        description: "Please try again.",
-      });
-      setProcessingState(ProcessingState.NOT_INITIATED);
-    }
-  };
-
   useEffect(() => {
     // send the file for processing
+    const sendFileForProcessing = async () => {
+      if (!uploadedFile) {
+        throw Error("No file uploaded");
+      }
+
+      setProcessingState(ProcessingState.PROCESSING);
+
+      const formData = new FormData();
+      formData.append("file", uploadedFile);
+      formData.append("namespace", namespace);
+
+      try {
+        await fetch("/api/process_doc", {
+          method: "POST",
+          body: formData,
+          cache: "no-store",
+        });
+
+        toast({
+          description: "File processed successfully",
+        });
+
+        setProcessingState(ProcessingState.PROCESSED);
+      } catch (error) {
+        console.log(error);
+        toast({
+          variant: "destructive",
+          title: "Error processing document",
+          description: "Please try again.",
+        });
+        setProcessingState(ProcessingState.NOT_INITIATED);
+      }
+    };
+
     if (fileSubmitted) sendFileForProcessing();
   }, [fileSubmitted]);
 
@@ -235,7 +196,7 @@ const App: React.FC = () => {
     const onTranscript = (data: LiveTranscriptionEvent) => {
       const { is_final: isFinal, speech_final: speechFinal } = data;
 
-      let thisCaption = data.channel.alternatives[0].transcript;
+      const thisCaption = data.channel.alternatives[0].transcript;
 
       const startTime = data.start;
       const duration = data.duration;
@@ -293,6 +254,47 @@ const App: React.FC = () => {
   }, [connectionState]);
 
   useEffect(() => {
+    const getLLMResponse = async (
+      conv: ConversationMessage[]
+    ): Promise<void> => {
+      setLLMText("Thinking...");
+
+      const response = await fetch("/api/llm_response", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          prompt: fullTranscriptRef.current.trim(),
+          full_conv: conv,
+          namespace,
+        }),
+        cache: "no-store",
+      });
+      const result = await response.json();
+
+      console.log("result.llm_response", result.llm_response);
+
+      // BOT will speak the response
+      setUser(UserType.Bot);
+      await getTTS(result.llm_response);
+
+      // Append bot response to conversation
+      setConversation((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: result.llm_response,
+          timestamp: getCurrentTimeStamp(),
+        },
+      ]);
+
+      // Reset back to human
+      setUser(UserType.Human);
+      fullTranscriptRef.current = "";
+      startMicrophone();
+    };
+
     if (
       microphoneState === MicrophoneState.Paused &&
       fullTranscriptRef.current.trim() !== ""

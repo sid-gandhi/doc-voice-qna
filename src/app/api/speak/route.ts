@@ -6,9 +6,8 @@ export const revalidate = 0;
 export async function POST(request: NextRequest) {
   // gotta use the request object to invalidate the cache every request :vomit:
 
-  console.log("here speak req")
+  console.log("here speak req");
 
-  const url = request.url;
   const deepgram = createClient(process.env.DEEPGRAM_API_KEY ?? "");
 
   const model = "aura-asteria-en";

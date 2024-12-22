@@ -5,7 +5,7 @@ import { Document } from "@langchain/core/documents";
 
 export async function embedAndStoreDocs(
   client: Pinecone,
-  docs: Document<Record<string, any>>[],
+  docs: Document<Record<string, any>>[], // eslint-disable-line @typescript-eslint/no-explicit-any
   namespace: string
 ) {
   /*create and store the embeddings in the vectorStore*/
