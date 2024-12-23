@@ -1,5 +1,6 @@
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text";
+import { DocxLoader } from "@langchain/community/document_loaders/fs/docx";
 
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
@@ -12,9 +13,11 @@ export async function getChunkedDocs(doc: File) {
       loader = new PDFLoader(doc);
     } else if (fileExtension === ".txt") {
       loader = new TextLoader(doc);
+    } else if (fileExtension === ".docx") {
+      loader = new DocxLoader(doc);
     } else {
       throw new Error(
-        "Unsupported file type. Only PDF and TXT files are supported."
+        "Unsupported file type. Only PDF, TXT and DOCX files are supported."
       );
     }
 

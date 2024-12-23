@@ -43,7 +43,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
   }, []);
 
   const handleFile = (file: File) => {
-    const validTypes = [".pdf", ".txt"];
+    const validTypes = [".pdf", ".txt", ".docx"];
     const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
 
     if (validTypes.includes(fileExtension)) {
@@ -53,7 +53,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
       toast({
         variant: "destructive",
         title: "Error ingesting document",
-        description: "Please upload a .pdf, .txt file",
+        description: "Please upload a .pdf, .txt, .docx file",
       });
 
       return;
@@ -91,7 +91,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
           type="file"
           className="hidden"
           onChange={handleChange}
-          accept=".pdf, .txt"
+          accept=".pdf, .txt, .docx"
         />
         <Button
           variant="outline"
@@ -101,7 +101,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
           Select a file
         </Button>
         <p className="text-xs text-gray-500">
-          Supported file types: .pdf, .txt
+          Supported file types: .pdf, .txt, .docx
         </p>
         <p className="text-xs text-gray-500">File size must be less than 1MB</p>
       </div>
