@@ -1,6 +1,6 @@
 export const maxDuration = 60;
 
-import { getChunkedDocsFromPDF } from "@/lib/pdf-loader";
+import { getChunkedDocs } from "@/lib/doc-loader";
 import { getPineconeClient } from "@/lib/pinecone-client";
 import { embedAndStoreDocs } from "@/lib/vector-store";
 import { NextResponse, type NextRequest } from "next/server";
@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     const pineconeClient = await getPineconeClient();
 
     console.log("Preparing chunks from PDF File");
-    const docs = await getChunkedDocsFromPDF(uploadedFile);
+    const docs = await getChunkedDocs(uploadedFile);
     console.log(`Loading ${docs.length} chunks into pinecone...`);
 
     await embedAndStoreDocs(pineconeClient, docs, namespace);

@@ -4,6 +4,7 @@ import React, { useCallback, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Upload, File, X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface FileUploadProps {
   onFileUpload: (file: File) => void;
@@ -12,6 +13,8 @@ interface FileUploadProps {
 export function FileUpload({ onFileUpload }: FileUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+
+  const { toast } = useToast();
 
   const handleDrag = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -40,19 +43,28 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
   }, []);
 
   const handleFile = (file: File) => {
-    const validTypes = [".pdf"];
+    const validTypes = [".pdf", ".txt"];
     const fileExtension = "." + file.name.split(".").pop()?.toLowerCase();
-
-    if (file.size > 1024 * 1024) {
-      alert("File size must be less than 1MB");
-      return;
-    }
 
     if (validTypes.includes(fileExtension)) {
       setFile(file);
       onFileUpload(file);
     } else {
-      alert("Please upload a .pdf file");
+      toast({
+        variant: "destructive",
+        title: "Error ingesting document",
+        description: "Please upload a .pdf, .txt file",
+      });
+
+      return;
+    }
+
+    if (file.size > 1024 * 1024) {
+      toast({
+        variant: "destructive",
+        title: "Error ingesting document",
+        description: "File size must be less than 1MB",
+      });
     }
   };
 
@@ -79,7 +91,7 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
           type="file"
           className="hidden"
           onChange={handleChange}
-          accept=".pdf"
+          accept=".pdf, .txt"
         />
         <Button
           variant="outline"
@@ -88,7 +100,9 @@ export function FileUpload({ onFileUpload }: FileUploadProps) {
         >
           Select a file
         </Button>
-        <p className="text-xs text-gray-500">Supported file types: .pdf</p>
+        <p className="text-xs text-gray-500">
+          Supported file types: .pdf, .txt
+        </p>
         <p className="text-xs text-gray-500">File size must be less than 1MB</p>
       </div>
       {file && (
