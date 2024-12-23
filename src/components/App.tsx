@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNowPlaying } from "react-nowplaying";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Mic, MicOff, Loader2 } from "lucide-react";
 import {
   LiveConnectionState,
@@ -339,71 +340,75 @@ const App: React.FC = () => {
   }, [microphoneState, connectionState]);
 
   return (
-    <>
-      <div className="flex flex-col items-center justify-center rounded ">
-        {!fileSubmitted ? (
-          <div className="container mx-auto p-4">
-            <h1 className="text-xl font-bold mb-4 text-center">
-              Please Upload Your Document
-            </h1>
-            <FileUpload onFileUpload={handleFileUpload} />
-            {uploadedFile && (
-              <div className="mt-4 text-center">
-                <p>File ready to upload: {uploadedFile.name}</p>
-                <Button onClick={handleSubmit} className="mt-2 ">
-                  Submit File
-                </Button>
-              </div>
-            )}
-          </div>
-        ) : processingState === ProcessingState.PROCESSING ? (
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin" />
-            <p className="text-lg">
-              Document is processing, please wait a few seconds...
-            </p>
-          </div>
-        ) : (
-          <>
-            {uploadedFile?.name}
+    <div className="container max-w-screen-xl mx-auto px-4 flex flex-col items-center justify-center rounded min-h-screen">
+      {!fileSubmitted ? (
+        <div className="container mx-auto p-4 mt-4">
+          <h1 className="text-xl font-bold mb-4 text-center">
+            Upload your document
+          </h1>
+          <FileUpload onFileUpload={handleFileUpload} />
+          {uploadedFile && (
+            <div className="mt-4 text-center">
+              <p>File ready to upload: {uploadedFile.name}</p>
+              <Button onClick={handleSubmit} className="mt-2 ">
+                Submit File
+              </Button>
+            </div>
+          )}
+        </div>
+      ) : processingState === ProcessingState.PROCESSING ? (
+        <div className="flex flex-col items-center justify-center space-y-4">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <p className="text-lg">
+            Document is processing, please wait a few seconds...
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center space-y-4">
+          {uploadedFile?.name && (
+            <Badge variant="secondary">{uploadedFile?.name}</Badge>
+          )}
+          {conversation.length ? (
             <ChatHistory messages={conversation} />
-            {caption && <TranscriptionBubble text={caption} />}
-            <motion.div className="mt-4">
-              {user === UserType.Human ? (
-                <Button
-                  onClick={toggleCall}
-                  className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
-                >
-                  <AnimatePresence>
-                    <motion.div
-                      key="mic-icon"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {microphoneState === MicrophoneState.Open ||
-                      microphoneState === MicrophoneState.Opening ? (
-                        <Mic />
-                      ) : (
-                        <MicOff />
-                      )}
-                    </motion.div>
-                  </AnimatePresence>
-                </Button>
-              ) : isGeneratingResponse ? (
-                <div className="flex flex-col items-center justify-center space-y-4">
-                  <Loader2 className="h-8 w-8 animate-spin" />
-                  <p className="text-lg">Thinking...</p>
-                </div>
-              ) : (
-                <TranscriptionBubble text={llmText} />
-              )}
-            </motion.div>
-          </>
-        )}
-      </div>
-    </>
+          ) : (
+            <></>
+          )}
+          {caption && <TranscriptionBubble text={caption} />}
+          <motion.div className="mt-4">
+            {user === UserType.Human ? (
+              <Button
+                onClick={toggleCall}
+                className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
+              >
+                <AnimatePresence>
+                  <motion.div
+                    key="mic-icon"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {microphoneState === MicrophoneState.Open ||
+                    microphoneState === MicrophoneState.Opening ? (
+                      <Mic />
+                    ) : (
+                      <MicOff />
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </Button>
+            ) : isGeneratingResponse ? (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <p className="text-lg">Thinking...</p>
+              </div>
+            ) : (
+              <TranscriptionBubble text={llmText} />
+            )}
+          </motion.div>
+        </div>
+      )}
+    </div>
   );
 };
 

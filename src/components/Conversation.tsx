@@ -47,7 +47,7 @@ type ChatHistoryProps = { messages: ConversationMessage[] };
 const ChatHistory = ({ messages }: ChatHistoryProps) => {
   return (
     <div>
-      <ScrollArea className="h-[600px] p-4">
+      <ScrollArea className="p-4 h-[500px]">
         <div className="max-w-2xl mx-auto p-4 space-y-4">
           {messages.map((msg, idx) => (
             <ChatBubble key={idx} {...msg} />
