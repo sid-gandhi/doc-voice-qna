@@ -339,6 +339,12 @@ const App: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [microphoneState, connectionState]);
 
+  const micPulseAnimation = {
+    scale: [1, 1.2, 1],
+    opacity: [1, 0.8, 1],
+    transition: { duration: 0.8, repeat: Infinity },
+  };
+
   return (
     <div className="container max-w-screen-xl mx-auto px-4 flex flex-col items-center justify-center rounded min-h-screen">
       {!fileSubmitted ? (
@@ -384,7 +390,12 @@ const App: React.FC = () => {
                   <motion.div
                     key="mic-icon"
                     initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    animate={
+                      microphoneState === MicrophoneState.Open ||
+                      microphoneState === MicrophoneState.Opening
+                        ? micPulseAnimation
+                        : { opacity: 1, scale: 1 }
+                    }
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.3 }}
                   >
