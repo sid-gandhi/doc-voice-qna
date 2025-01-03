@@ -11,10 +11,9 @@ type TextConversationProps = {
 };
 
 export function TextConversation({ namespace }: TextConversationProps) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } =
-    useChat({
-      body: { namespace },
-    });
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    body: { namespace },
+  });
 
   return (
     <div className="flex flex-col h-[300px]">
