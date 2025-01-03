@@ -453,7 +453,7 @@ const App: React.FC = () => {
               </div>
             </TabsContent>
             <TabsContent value="text">
-              <TextConversation />
+              <TextConversation namespace={namespace} />
             </TabsContent>
           </Tabs>
         </div>
