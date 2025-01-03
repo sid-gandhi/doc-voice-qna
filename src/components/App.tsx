@@ -5,8 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useNowPlaying } from "react-nowplaying";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { Mic, MicOff, Loader2, MessageSquare } from "lucide-react";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { TextConversation } from "@/components/Chat";
 
 import {
   LiveConnectionState,
@@ -382,53 +384,78 @@ const App: React.FC = () => {
           </p>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center space-y-4">
-          {uploadedFile?.name && (
-            <Badge variant="secondary">{uploadedFile?.name}</Badge>
-          )}
-          {conversation.length ? (
-            <ChatHistory messages={conversation} />
-          ) : (
-            <></>
-          )}
-          {caption && <TranscriptionBubble text={caption} />}
-          <motion.div className="mt-4">
-            {user === UserType.Human ? (
-              <Button
-                onClick={toggleCall}
-                className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
+        <div className="container mx-auto p-4">
+          <Tabs defaultValue="voice" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger
+                value="voice"
+                className="flex items-center justify-center"
               >
-                <AnimatePresence>
-                  <motion.div
-                    key="mic-icon"
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={
-                      microphoneState === MicrophoneState.Open ||
-                      microphoneState === MicrophoneState.Opening
-                        ? micPulseAnimation
-                        : { opacity: 1, scale: 1 }
-                    }
-                    exit={{ opacity: 0, scale: 0.8 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {microphoneState === MicrophoneState.Open ||
-                    microphoneState === MicrophoneState.Opening ? (
-                      <Mic />
-                    ) : (
-                      <MicOff />
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </Button>
-            ) : isGeneratingResponse ? (
+                <Mic className="mr-2 h-4 w-4" />
+                Voice
+              </TabsTrigger>
+              <TabsTrigger
+                value="text"
+                className="flex items-center justify-center"
+              >
+                <MessageSquare className="mr-2 h-4 w-4" />
+                Chat
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="voice">
               <div className="flex flex-col items-center justify-center space-y-4">
-                <Loader2 className="h-8 w-8 animate-spin" />
-                <p className="text-lg">Thinking...</p>
+                {uploadedFile?.name && (
+                  <Badge variant="secondary">{uploadedFile?.name}</Badge>
+                )}
+                {conversation.length ? (
+                  <ChatHistory messages={conversation} />
+                ) : (
+                  <></>
+                )}
+                {caption && <TranscriptionBubble text={caption} />}
+                <motion.div className="mt-4">
+                  {user === UserType.Human ? (
+                    <Button
+                      onClick={toggleCall}
+                      className="flex items-center justify-center w-12 h-12 rounded-full shadow-lg"
+                    >
+                      <AnimatePresence>
+                        <motion.div
+                          key="mic-icon"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={
+                            microphoneState === MicrophoneState.Open ||
+                            microphoneState === MicrophoneState.Opening
+                              ? micPulseAnimation
+                              : { opacity: 1, scale: 1 }
+                          }
+                          exit={{ opacity: 0, scale: 0.8 }}
+                          transition={{ duration: 0.3 }}
+                        >
+                          {microphoneState === MicrophoneState.Open ||
+                          microphoneState === MicrophoneState.Opening ? (
+                            <Mic />
+                          ) : (
+                            <MicOff />
+                          )}
+                        </motion.div>
+                      </AnimatePresence>
+                    </Button>
+                  ) : isGeneratingResponse ? (
+                    <div className="flex flex-col items-center justify-center space-y-4">
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                      <p className="text-lg">Thinking...</p>
+                    </div>
+                  ) : (
+                    <TranscriptionBubble text={llmText} />
+                  )}
+                </motion.div>
               </div>
-            ) : (
-              <TranscriptionBubble text={llmText} />
-            )}
-          </motion.div>
+            </TabsContent>
+            <TabsContent value="text">
+              <TextConversation />
+            </TabsContent>
+          </Tabs>
         </div>
       )}
     </div>
