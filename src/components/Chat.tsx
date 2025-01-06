@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
 import { useChat } from "ai/react";
+import { SourceUrls } from "@/app/api/chat/route";
 
 type Annotations = {
   sources: string[];
+  sourceUrls: SourceUrls;
 };
 
 type TextConversationProps = {
@@ -18,6 +20,10 @@ export function TextConversation({ namespace }: TextConversationProps) {
     useChat({
       body: { namespace },
     });
+
+  function findSourceUrl(sourceUrls: SourceUrls, source: string) {
+    return sourceUrls?.find((s) => s.source === source)?.url;
+  }
 
   return (
     <div className="flex flex-col h-[600px]">
@@ -46,7 +52,10 @@ export function TextConversation({ namespace }: TextConversationProps) {
                     {(m.annotations[0] as Annotations)?.sources?.map(
                       (source: string, index: number) => (
                         <a
-                          href={"https://www.google.com/"}
+                          href={findSourceUrl(
+                            (m.annotations?.[0] as Annotations)?.sourceUrls,
+                            source
+                          )}
                           target="_blank"
                           rel="noopener noreferrer"
                           key={index}

@@ -3,6 +3,7 @@ import { getVectorStoreSearchResults } from "@/lib/vector-store";
 import { createGroq } from "@ai-sdk/groq";
 import { createDataStreamResponse, Message, streamText, generateId } from "ai";
 import { textToTextPrompt } from "@/lib/prompt-templates";
+import { getPublicUrl } from "@/lib/supabase-storage";
 
 export const maxDuration = 30;
 
@@ -15,6 +16,8 @@ type ChatRequest = {
   namespace: string;
 };
 
+export type SourceUrls = { source: string; url: string }[];
+
 export async function POST(req: Request) {
   const { messages, namespace }: ChatRequest = await req.json();
 
@@ -24,6 +27,12 @@ export async function POST(req: Request) {
 
   const { context, sources, sourceAndContext } =
     await getVectorStoreSearchResults(pineconeClient, lastMessage, namespace);
+
+  const sourceUrls: SourceUrls = [];
+  for (const source of sources) {
+    const publicUrl = await getPublicUrl(source);
+    sourceUrls.push({ source, url: publicUrl });
+  }
 
   const systemContent = textToTextPrompt.replace("{context}", context);
 
@@ -41,6 +50,7 @@ export async function POST(req: Request) {
           dataStream.writeMessageAnnotation({
             id: generateId(), // e.g. id from saved DB record
             sources,
+            sourceUrls,
           });
 
           // call annotation:

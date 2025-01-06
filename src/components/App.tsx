@@ -134,7 +134,8 @@ const App: React.FC = () => {
       description: "File submitted successfully",
     });
 
-    setNamespace(uploadedFile.name + "_" + new Date().toISOString());
+    // setNamespace(uploadedFile.name + "_" + new Date().toISOString());
+    setNamespace("new_namespace");
 
     console.log("File uploaded successfully");
   };
