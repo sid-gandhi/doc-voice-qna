@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
 
   // retrieve context from vector store
   const pineconeClient = await getPineconeClient();
-  const { context, sources } = await getVectorStoreSearchResults(
+  const { context } = await getVectorStoreSearchResults(
     pineconeClient,
     prompt,
     namespace

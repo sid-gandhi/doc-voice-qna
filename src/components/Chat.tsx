@@ -16,10 +16,9 @@ type TextConversationProps = {
 };
 
 export function TextConversation({ namespace }: TextConversationProps) {
-  const { messages, input, handleInputChange, handleSubmit, data, setData } =
-    useChat({
-      body: { namespace },
-    });
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    body: { namespace },
+  });
 
   function findSourceUrl(sourceUrls: SourceUrls, source: string) {
     return sourceUrls?.find((s) => s.source === source)?.url;

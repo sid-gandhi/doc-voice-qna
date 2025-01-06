@@ -25,8 +25,11 @@ export async function POST(req: Request) {
 
   const pineconeClient = await getPineconeClient();
 
-  const { context, sources, sourceAndContext } =
-    await getVectorStoreSearchResults(pineconeClient, lastMessage, namespace);
+  const { context, sources } = await getVectorStoreSearchResults(
+    pineconeClient,
+    lastMessage,
+    namespace
+  );
 
   const sourceUrls: SourceUrls = [];
   for (const source of sources) {
