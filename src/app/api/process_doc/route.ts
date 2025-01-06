@@ -24,6 +24,11 @@ export async function POST(req: NextRequest) {
     const docs = await getChunkedDocs(uploadedFile);
     console.log(`Loading ${docs.length} chunks into pinecone...`);
 
+    // add source metadata
+    docs.forEach((doc) => {
+      doc.metadata.source = namespace;
+    });
+
     await embedAndStoreDocs(pineconeClient, docs, namespace);
     console.log("Data embedded and stored in pine-cone index");
 
