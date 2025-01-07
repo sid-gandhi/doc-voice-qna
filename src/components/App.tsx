@@ -189,6 +189,7 @@ const App: React.FC = () => {
         filler_words: true,
         utterance_end_ms: 3000,
         endpointing: 300,
+        sample_rate: 16000,
       });
     }
   }, [microphoneState]);
