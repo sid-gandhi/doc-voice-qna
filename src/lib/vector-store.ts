@@ -47,7 +47,20 @@ export async function getVectorStoreSearchResults(
       .map((result) => result.pageContent)
       .join("\n");
 
-    return context;
+    const sources = [
+      ...new Set(
+        searchResults.map((result) => result.metadata.source as string)
+      ),
+    ];
+
+    const sourceAndContext = searchResults.map((result) => {
+      return {
+        source: result.metadata.source as string,
+        context: result.pageContent,
+      };
+    });
+
+    return { context, sources, sourceAndContext };
   } catch (error) {
     console.log("error ", error);
     throw new Error("Something went wrong while getting vector store !");
