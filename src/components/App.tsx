@@ -353,6 +353,22 @@ const App: React.FC = () => {
 
   return (
     <div className="container max-w-screen-xl mx-auto px-4 flex flex-col items-center justify-center rounded min-h-screen">
+      <div className="absolute top-4 left-4">
+        <nav className="flex space-x-4 ml-4">
+          <a
+            href="/"
+            className="inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:opacity-80 hover:bg-gray-200 rounded"
+          >
+            Home
+          </a>
+          <a
+            href="/personas"
+            className="inline-flex items-center justify-center text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background hover:opacity-80 hover:bg-gray-200 rounded"
+          >
+            Personas
+          </a>
+        </nav>
+      </div>
       <div className="absolute top-4 right-4">
         <a
           href="https://github.com/sid-gandhi/rag-voice-ai"
