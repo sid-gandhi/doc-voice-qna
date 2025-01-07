@@ -53,7 +53,7 @@ export default function PersonaPage({
               <CardContent className="flex items-center gap-4 p-4">
                 <Headphones className="text-primary h-5 w-5" />
                 <div>
-                  <h3 className="font-medium">Listen to {slug}'s Full Call</h3>
+                  <h3 className="font-medium">Listen to {slug}&apos;s Full Call</h3>
                 </div>
               </CardContent>
             </Card>
@@ -77,7 +77,7 @@ export default function PersonaPage({
               <CardContent className="flex items-center gap-4 p-4">
                 <Shield className="text-primary h-5 w-5" />
                 <div>
-                  <h3 className="font-medium">Review {slug}'s Safety Data</h3>
+                  <h3 className="font-medium">Review {slug}&apos;s Safety Data</h3>
                 </div>
               </CardContent>
             </Card>
