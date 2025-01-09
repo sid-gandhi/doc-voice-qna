@@ -53,7 +53,9 @@ const App: React.FC = () => {
 
   const { player, stop: stopAudio, play: playAudio } = useNowPlaying();
 
-  const [uploadedFile, setUploadedFile] = React.useState<File | null>(null);
+  const [uploadedFiles, setUploadedFiles] = React.useState<FileList | null>(
+    null
+  );
   const [fileSubmitted, setFileSubmitted] = React.useState<boolean>(false);
 
   const [namespace, setNamespace] = useState<string>("");
@@ -111,13 +113,13 @@ const App: React.FC = () => {
     } else setupMicrophone();
   };
 
-  const handleFileUpload = (file: File) => {
-    setUploadedFile(file);
-    console.log("File received:", file.name);
+  const handleFileUpload = (files: FileList) => {
+    setUploadedFiles(files);
+    // console.log("File received:", files.name);
   };
 
   const handleSubmit = async () => {
-    if (!uploadedFile) {
+    if (!uploadedFiles) {
       console.log("No file uploaded");
 
       toast({
@@ -144,15 +146,22 @@ const App: React.FC = () => {
   useEffect(() => {
     // send the file for processing
     const sendFileForProcessing = async () => {
-      if (!uploadedFile) {
-        throw Error("No file uploaded");
+      if (!uploadedFiles) {
+        throw Error("No files uploaded");
       }
 
       setProcessingState(ProcessingState.PROCESSING);
 
       const formData = new FormData();
-      formData.append("file", uploadedFile);
+
+      Array.from(uploadedFiles).forEach((file, index) => {
+        formData.append(`file_${index}`, file);
+      });
       formData.append("namespace", namespace);
+
+      const numberOfFiles = uploadedFiles.length;
+
+      formData.append("numberOfFiles", `${numberOfFiles}`);
 
       try {
         await fetch("/api/process_doc", {
@@ -386,9 +395,9 @@ const App: React.FC = () => {
             Upload your document
           </h1>
           <FileUpload onFileUpload={handleFileUpload} />
-          {uploadedFile && (
+          {uploadedFiles && (
             <div className="mt-4 text-center">
-              <p>File ready to upload: {uploadedFile.name}</p>
+              <p>Files ready to upload</p>
               <Button onClick={handleSubmit} className="mt-2 ">
                 Submit File
               </Button>
@@ -423,9 +432,9 @@ const App: React.FC = () => {
             </TabsList>
             <TabsContent value="voice">
               <div className="flex flex-col items-center justify-center space-y-4">
-                {uploadedFile?.name && (
+                {/* {uploadedFile?.name && (
                   <Badge variant="secondary">{uploadedFile?.name}</Badge>
-                )}
+                )} */}
                 {conversation.length ? (
                   <ChatHistory messages={conversation} />
                 ) : (
