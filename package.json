@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/groq": "^1.0.9",
+    "@auth0/nextjs-auth0": "^3.5.0",
     "@deepgram/sdk": "^3.3.0",
     "@langchain/cohere": "^0.3.1",
     "@langchain/community": "^0.3.19",

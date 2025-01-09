@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { Headphones, Shield, Phone } from "lucide-react";
 import { use } from "react";
+import { withPageAuthRequired } from '@auth0/nextjs-auth0';
 
 type PersonaPageProps = {
   slug: string;

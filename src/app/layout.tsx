@@ -7,6 +7,8 @@ import { NowPlayingContextProvider } from "react-nowplaying";
 import { DeepgramContextProvider } from "@/context/DeepgramContextProvider";
 import { MicrophoneContextProvider } from "@/context/MicrophoneContextProvider";
 
+import { UserProvider } from "@auth0/nextjs-auth0/client";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -32,12 +34,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <MicrophoneContextProvider>
-          <NowPlayingContextProvider>
-            <DeepgramContextProvider>{children}</DeepgramContextProvider>
-          </NowPlayingContextProvider>
-        </MicrophoneContextProvider>
-        <Toaster />
+        <UserProvider>
+          <MicrophoneContextProvider>
+            <NowPlayingContextProvider>
+              <DeepgramContextProvider>{children}</DeepgramContextProvider>
+            </NowPlayingContextProvider>
+          </MicrophoneContextProvider>
+          <Toaster />
+        </UserProvider>
       </body>
     </html>
   );
