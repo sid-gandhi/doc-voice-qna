@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     const filePath = `${namespace}/${fileName}`;
 
-    const { data, error } = await supabase.storage
+    const { data } = await supabase.storage
       .from("rag-ai-docs")
       .upload(filePath, uploadedFile, {
         upsert: true,
